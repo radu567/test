@@ -1,4 +1,4 @@
-﻿elo.cloudmodules.startAddRecordIesire = function(state){
+elo.cloudmodules.startAddRecordIntern = function(state){
 	var currentDate = elo.cloudmodules.functions.getCurrentDateInfo();
 	var companycode = "";
 	var companyname = "";
@@ -9,16 +9,16 @@
 		//companycode = ou.id;
 		//companyname = ou.name;
 		
-		var recordMask = elo.cloudmodules.functions.getMaskId("Inregistrare registru iesire"); // ID MASCA REGISTRU
-		var recordFlow = elo.cloudmodules.functions.getFlowTemplateId("FLUX INREGISTRARE IESIRE"); //ID FLUX COMPLETARE
+		var recordMask = elo.cloudmodules.functions.getMaskId("Inregistrare registru intern"); // ID MASCA REGISTRU
+		var recordFlow = elo.cloudmodules.functions.getFlowTemplateId("FLUX INREGISTRARE INTERN"); //ID FLUX COMPLETARE
 		
 		//var companyFolderId = elo.cloudmodules.functions.findCompanyFolder(companycode);
 		var companyFolderId = "1";
 		//Create year , month and day folders
 		if (companyFolderId!=null){
 			var registryId = elo.cloudmodules.functions.createUniqueSord (companyFolderId,"Registratura electronica","1");
-			var registruIesire = elo.cloudmodules.functions.createUniqueSord (registryId,"Registratura registru iesire","1");
-			var yearId = elo.cloudmodules.functions.createUniqueSord (registruIesire,currentDate.year,"1");
+			var registruIntern = elo.cloudmodules.functions.createUniqueSord (registryId,"Registratura registru intern","1");
+			var yearId = elo.cloudmodules.functions.createUniqueSord (registruIntern,currentDate.year,"1");
 			var monthId = elo.cloudmodules.functions.createUniqueSord (yearId,currentDate.month,"1");
 			var dayId = elo.cloudmodules.functions.createUniqueSord (monthId,currentDate.day,"1");
 			folderName = "INREGISTRARE "+ currentDate.roDateLong;
