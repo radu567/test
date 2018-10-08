@@ -1,0 +1,69 @@
+﻿elo.cloudmodules.startAddRecordIesire = function(state){
+	var currentDate = elo.cloudmodules.functions.getCurrentDateInfo();
+	var companycode = "";
+	var companyname = "";
+	var sordId = '';
+	var selectedSord = null;
+	try{
+		//var ou = elo.cloudmodules.functions.getOU(api.Webclient.getUserName());
+		//companycode = ou.id;
+		//companyname = ou.name;
+		
+		var recordMask = elo.cloudmodules.functions.getMaskId("Inregistrare registru iesire"); // ID MASCA REGISTRU
+		var recordFlow = elo.cloudmodules.functions.getFlowTemplateId("FLUX INREGISTRARE IESIRE"); //ID FLUX COMPLETARE
+		
+		//var companyFolderId = elo.cloudmodules.functions.findCompanyFolder(companycode);
+		var companyFolderId = "1";
+		//Create year , month and day folders
+		if (companyFolderId!=null){
+			var registryId = elo.cloudmodules.functions.createUniqueSord (companyFolderId,"Registratura electronica","1");
+			var registruIesire = elo.cloudmodules.functions.createUniqueSord (registryId,"Registratura registru iesire","1");
+			var yearId = elo.cloudmodules.functions.createUniqueSord (registruIesire,currentDate.year,"1");
+			var monthId = elo.cloudmodules.functions.createUniqueSord (yearId,currentDate.month,"1");
+			var dayId = elo.cloudmodules.functions.createUniqueSord (monthId,currentDate.day,"1");
+			folderName = "INREGISTRARE "+ currentDate.roDateLong;
+			var recordId = elo.cloudmodules.functions.createUniqueSord (dayId,folderName,recordMask);
+			editSord = new elo.model.Sord({
+				data: {
+					id: recordId
+				}
+			});
+			//Edit created sord add counter value and date
+			editSord.checkout(function(sordEdit){
+				var counters = IX.ix().checkoutCounters(["reg_385466645"] , true , CONST.LOCK.NO);
+				var numar = counters[0].value+"";
+				var data = currentDate.year+""+currentDate.month+""+currentDate.day;
+				//var numar = sordEdit.getLineByGroup('NRINREG');
+				sordEdit.setLineByGroup('DATAINREG', data);
+				folderName = "Inregistrare "+ numar +"/" + currentDate.roDate;
+				flowName = folderName;
+				sordEdit.setName( folderName);
+				sordEdit.checkin(function(id){
+					// When the sord is created, create a new task object.
+					var flowObj = {
+						data: {
+							objId: id,
+							flowId: recordFlow,
+							name: flowName
+						}
+					};
+					var newFlow = new elo.model.Task(flowObj);	
+					//Start a new workflow
+					newFlow.startWorkflow(function(wfId){
+						var flow = {
+							flowId: wfId,
+							nodeId: 1
+						};	
+						api.Webclient.gotoTask(flow);
+					}, elo.cloudmodules.functions.failure);
+				},elo.cloudmodules.functions.failure);					
+			},elo.cloudmodules.functions.failure);
+		}
+		else{
+			api.Webclient.alert('Eroare', 'A aparut o eroare. Contactati administratorul.');
+		}
+	}
+	catch(err){
+		console.log(err);
+	}
+}
